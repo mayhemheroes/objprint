@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import atheris
 import io
+import re
 import sys
 import fuzz_helpers
 from contextlib import contextmanager
@@ -40,10 +41,12 @@ def get_random_obj(fdp: fuzz_helpers.EnhancedFuzzedDataProvider) -> object:
     except Exception:
         return None
 
-
+ctr = 0
 def TestOneInput(data):
     fdp = fuzz_helpers.EnhancedFuzzedDataProvider(data)
+    global ctr
 
+    ctr += 1
     try:
         with nostdout():
             choice = fdp.ConsumeIntInRange(0, 5)
@@ -61,6 +64,10 @@ def TestOneInput(data):
                 objprint.op(rand_obj, include=fuzz_helpers.build_fuzz_list(fdp, [str]))
             elif choice == 5:
                 objprint.op(rand_obj, exclude=fuzz_helpers.build_fuzz_list(fdp, [str]))
+    except re.error:
+        if ctr > 1000:
+            raise
+        return -1
     except TypeError as e:
         if 'bytes-like' in str(e):
             return -1
