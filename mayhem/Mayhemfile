@@ -1,0 +1,6 @@
+project: objprint
+target: obj-print-fuzz
+
+cmds:
+  - cmd: /src/mayhem/fuzz_print.py
+    libfuzzer: true
